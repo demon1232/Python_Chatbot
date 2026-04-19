@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Python Chatbot</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            padding: 10px;
+            border-radius: 10px;
+            background: #020617;
+        }
+
+        .message {
+            margin: 10px 0;
+        }
+
+        .user {
+            text-align: right;
+            color: #38bdf8;
+        }
+
+        .bot {
+            text-align: left;
+            color: #22c55e;
+        }
+
+        /* 🔥 NEW: code formatting */
+        pre {
+            background: #020617;
+            padding: 10px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .input-box {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 10px;
+            margin-left: 5px;
+            background: #38bdf8;
+            border: none;
+            color: black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🐍 Python Chatbot</h1>
+
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="input-box">
+        <input type="text" id="userInput" placeholder="Ask about Python...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    let input = document.getElementById("userInput");
+    let chatBox = document.getElementById("chatBox");
+
+    let message = input.value.trim();
+
+    if (!message) return;
+
+    // User message
+    chatBox.innerHTML += `<div class="message user">${message}</div>`;
+
+    input.value = "";
+
+    try {
+        let response = await fetch("/chat/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        let data = await response.json();
+
+        // 🔥 NEW: formatted bot response
+        chatBox.innerHTML += `
+        <div class="message bot">
+            <pre>${data.response}</pre>
+        </div>`;
+
+    } catch (error) {
+        chatBox.innerHTML += `
+        <div class="message bot">
+            <pre>Error connecting to server</pre>
+        </div>`;
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// 🔥 NEW: Enter key support
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
